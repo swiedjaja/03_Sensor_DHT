@@ -1,9 +1,7 @@
 #include <Arduino.h>
-#include <Ticker.h>
 #include "DHTesp.h" // Click here to get the library: http://librarymanager/All#DHTesp
 #include "device.h"
 
-Ticker timer1Sec, ledOff;
 DHTesp dht;
 
 void OnTimerReadDht()
@@ -15,9 +13,7 @@ void OnTimerReadDht()
   {
     Serial.printf("Temperature: %.2f C, Humidity: %.2f %%\n", temperature, humidity);
   }
-  ledOff.once_ms(100, [](){
-      digitalWrite(LED_BUILTIN, LED_BUILTIN_OFF);
-  });
+  digitalWrite(LED_BUILTIN, LED_BUILTIN_OFF);
 }
 
 void setup() {
@@ -35,14 +31,9 @@ void setup() {
 
   Serial.printf("Board: %s\n", ARDUINO_BOARD);
   Serial.printf("DHT Sensor ready, sampling period: %d ms\n", dht.getMinimumSamplingPeriod());  
-#if defined(ESP32)  
-  timer1Sec.attach_ms(2*dht.getMinimumSamplingPeriod(), OnTimerReadDht);
-#endif  
 }
 
 void loop() {
-#if defined(ESP8266)
-  OnTimerReadDht();
-  delay(2000);
-#endif
+  if (millis()%3000==0)
+    OnTimerReadDht();
 }
